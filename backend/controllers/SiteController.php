@@ -1,19 +1,25 @@
 <?php
+
 namespace backend\controllers;
 
 use Yii;
-use yii\web\Controller;
+use backend\components\Controller;
+use yii\base\InvalidParamException;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
 use common\models\LoginForm;
 use common\models\ForgotForm;
-use frontend\models\SignupForm;
+use yii\web\BadRequestHttpException;
+use yii\web\NotFoundHttpException;
+use yii\web\UploadedFile;
+use common\models\UploadCSVForm;
 
 /**
  * Site controller
  */
 class SiteController extends Controller
 {
+
     /**
      * {@inheritdoc}
      */
@@ -24,7 +30,7 @@ class SiteController extends Controller
                 'class' => AccessControl::className(),
                 'rules' => [
                     [
-                        'actions' => ['login', 'error', 'forgot', 'signup'],
+                        'actions' => ['login', 'error', 'modulo', 'signup', 'request-password-reset', 'reset-password', 'perfil'],
                         'allow' => true,
                     ],
                     [
@@ -64,6 +70,17 @@ class SiteController extends Controller
         return $this->render('index');
     }
 
+    public function actionModulo($id){
+        Yii::$app->id = $id;
+        $moduloCookie = new \yii\web\Cookie([
+            'name' => 'modulo',
+            'value' => $id,
+            'expire' => time() + 60 * 60 * 24 * 30,
+        ]);
+        Yii::$app->response->cookies->add($moduloCookie);
+        return $this->redirect("index");
+    }
+
     /**
      * Login action.
      *
@@ -79,6 +96,7 @@ class SiteController extends Controller
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
             return $this->goBack();
         } else {
+            $this->layout = 'main-login';
             return $this->render('login', [
                 'model' => $model,
             ]);
@@ -97,109 +115,117 @@ class SiteController extends Controller
         return $this->goHome();
     }
 
-    public static function armarMenu($matriz){
-        $data = array();
-        foreach ($matriz as $key => $value){
-            $data[] = SiteController::recorro($value);
-        }
-        return $data;
-    }
-
-    public static function recorro($matriz) {
-        $data = array();
-        foreach ($matriz as $key => $value) {
-            if (is_array($value)) {
-                $data[$key] = SiteController::recorro($value);
-            } else {
-                $data[$key] = $value;
-                $menu = \mdm\admin\models\Menu::find()->where("name = '" . trim($value) . "'")->one();
-
-                if ($menu['option']) {
-                    $data['option'] = ['class' => 'header'];
-                } else {
-                    $data['icon'] = $menu['icon'];
-                }
-            }
-        }
-        $clave = array_key_exists('option', $data);
-        if ($clave) {
-            foreach ($data as $index => $valor) {
-                if ($index == 'url') {
-                    unset($data[$index]);
-                }
-            }
-        }
-        return $data;
-    }
-
-    public static function recursive_replace(&$data, $find, $replace){
-        if (is_array($data)) {
-            if (!isset($data[RECURSIVE_REPLACE_MARKER])) {
-                $data[RECURSIVE_REPLACE_MARKER] = TRUE;
-                foreach ($data as $key => $val) {
-                    if (is_array($data[$key]) || is_object($data[$key])) {
-                        SiteController::recursive_replace($data[$key], $find, $replace);
-                    } else {
-                        if ($data[$key] === $find) {
-                            $data['url'][0] = $replace;
-                        }
-                    }
-                }
-                unset($data[RECURSIVE_REPLACE_MARKER]);
-            }
-        } elseif (is_object($data)) {
-            if (!isset($data->RECURSIVE_REPLACE_MARKER)) {
-                $data->RECURSIVE_REPLACE_MARKER = TRUE;
-                foreach ($data as $key => $val) {
-                    if (is_array($data->$key) || is_object($data->$key)) {
-                        SiteController::recursive_replace($data->$key, $find, $replace);
-                    } else {
-                        if ($data->$key === $find) {
-                            $data['url'][0] = $replace;
-                        }
-                    }
-                }
-                unset($data->RECURSIVE_REPLACE_MARKER);
-            }
-        }
-    }
-
-
-    public static function armarAcciones(&$matriz){
-        $data = \mdm\admin\models\Menu::find()->where("data != ''")->all();
-        foreach ($data as $value){
-            SiteController::recursive_replace($matriz, $value->name, $value->route . $value->data);
-        }
-        return $matriz;
-    }
-
     /**
-     * forgot action.
+     * Signs user up.
      *
-     * @return string
+     * @return mixed
      */
-    public function actionForgot(){
-        $model = new ForgotForm();
+    public function actionSignup(){
+        if(!Yii::$app->user->isGuest){
+            return $this->goHome();
+        }
+        $model = new \frontend\models\SignupForm();
+        if($model->load(Yii::$app->request->post())){
+            if($user = $model->signup()){
+                if(Yii::$app->getUser()->login($user)){
+                    Yii::$app->mailer->compose()
+                        ->setTo(Yii::$app->params['adminEmail'])
+                        ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->name. 'roboot'])
+                        ->setSubject("Nuevo Usuario Registrado")
+                        ->setTextBody("Existe un nuevo usuario registrado y se debe asiganr un perfil")
+                        ->send();
+                    return $this->goHome();
+                }
+            }
+        }
         $this->layout = 'main-login';
-        return $this->render('forgot',[
+        return $this->render('signup', [
             'model' => $model,
         ]);
     }
 
-    public function actionSignup(){
-        $model = new SignupForm();
-        $this->layout = 'main-login';
-        if($model->load(Yii::$app->request->post())){
-            if($user = $model->signup()){
-                if(Yii::$app->getUser()->login($user)){
-                    return $this->render('signup', [
-                        'model' => $model,
-                    ]);
-                }
+    /**
+     * Requests password reset.
+     *
+     * @return mixed
+     */
+    public function actionRequestPasswordReset(){
+        if(!Yii::$app->user->isGuest){
+            return $this->goHome();
+        }
+        $model = new \frontend\models\PasswordResetRequestForm();
+        if($model->load(Yii::$app->request->post()) && $model->validate()){
+            if($model->sendEmail()){
+                Yii::$app->session->setFlash('success', 'Revise su correo para obtener mas instrucciones.');
+                return $this->goHome();
+            }else{
+                Yii::$app->session->setFlash('error', 'Lo sentimos, no podemos restablecer la contraseña para el correo electronico proporcionado');
             }
         }
-        return $this->render('signup', [
-            'model' => $model
+        $this->layout = 'main-login';
+        return $this->render('requestPasswordResetToken',[
+            'model' => $model,
+        ]);
+    }
+
+    /**
+     * Resets password.
+     *
+     * @param string $token
+     * @return mixed
+     * @throws BadRequestHttpException
+     */
+    public function actionResetPassword($token){
+        try{
+            $model = new \frontend\models\ResetPasswordForm($token);
+        }catch (InvalidParamException $e){
+            throw new BadRequestHttpException($e->getMessage());
+        }
+
+        if($model->load(Yii::$app->request->post()) && $model->validate() && $model->resetPassword()){
+            Yii::$app->session->setFlash('success', 'Se ha guardado la nueva clave');
+            return $this->goHome();
+        }
+        $this->layout = 'main-login';
+        return $this->render('resetPassword', [
+            'model' => $model,
+        ]);
+    }
+
+    //metodo para gurdar perfiles
+    public function actionPerfil(){
+        $user = \common\models\User::findOne(Yii::$app->user->identity->id);
+        if(!$user){
+            throw new NotFoundHttpException("The user was not found");
+        }
+        $perfil = \common\models\Perfil::findOne(['user_id' => $user->id]);
+        if(!$perfil){
+            $perfil = new \common\models\Perfil();
+            $perfil->user_id = $user->id;
+            $perfil->save();
+        }
+
+        if($user->load(Yii::$app->request->post()) && $perfil->load(Yii::$app->request->post())){
+            $isValid = $user->validate();
+            $isValid = $perfil->validate() && $isValid;
+            if($isValid){
+                $perfil->foto = UploadedFile::getInstance($perfil, 'foto');
+                if($perfil->foto){
+                    $dir = Yii::getAlias('@backend') . "/web/img/usuarios/" . $user->id . '.jpg';
+                    $perfil->foto->saveAs($dir);
+                    $perfil->foto = $user->id . ".jpg";
+                }
+                $user->save(false);
+                $perfil->save(false);
+                Yii::$app->session->setFlash('success', 'Sus datos han sido actualizados');
+                return $this->goHome();
+            }else{
+                Yii::$app->session->setFlash('error', 'Lo sentimos no podemos guardar la informacion guardada');
+            }
+        }
+        return $this->render('perfil', [
+            'user' => $user,
+            'perfil' => $perfil,
         ]);
     }
 
@@ -235,13 +261,13 @@ class SiteController extends Controller
         return $String;
     }
 
-    public static function armardata($array, $respuestaclik) {
+    public static function armardata($array, $respuestaclick){
         $data = [];
 
-        foreach ($respuestaclik as $key => $value) {
-            if (array_key_exists($key, $array)) {
+        foreach ($respuestaclick as $key => $value){
+            if(array_key_exists($key, $array)){
                 $data[] = intval($array[$key][$key]);
-            } else {
+            }else{
                 $data[] = 0;
             }
         }

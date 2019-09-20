@@ -3,10 +3,10 @@
 use \kartik\datecontrol\Module;
 
 return [
-    'vendorPath' => dirname(dirname(__DIR__)) . '/vendor',
     'id' => 'project-hati',
     'name' => 'Project Hati',
-    'language' => 'en',
+    'language' => 'es',
+    'vendorPath' => dirname(dirname(__DIR__)) . '/vendor',
     'components' => [
         'cache' => [
             'class' => 'yii\caching\FileCache',
@@ -14,6 +14,12 @@ return [
         'urlManager' => [
             'showScriptName' => false,
             'enablePrettyUrl' => true
+        ],
+        'urlManagerFrontEnd' =>[
+            'class' => 'yii\web\urlManager',
+            'baseUrl' => '/frontend/web',
+            'enablePrettyUrl' => false,
+            'showScriptName' => false,
         ],
         'assetManager' => [
             'bundles' => [
@@ -36,8 +42,8 @@ return [
         ],
         'admin' => [
             'class' => 'mdm\admin\Module',
-            'layout' => 'left-menu',
-            'mainLayout' => '@app/views/layouts/main.php',
+            //'layout' => 'left-menu',
+            'mainLayout' => '@app/views/layouts/main-admin.php',
         ],
         'datecontrol' => [
             'class' => 'kartik\datecontrol\Module',
@@ -46,6 +52,9 @@ return [
                 Module::FORMAT_TIME => 'hh:mm:ss a',
                 Module::FORMAT_DATETIME => 'yyyy-MM-dd hh:mm:ss a'
             ],
+            'displayTimezone' => 'America/Bogota',
+            'saveTimezone' => 'UTC',
+            'autoWidget' => true,
             'widgetSettings' => [
                 Module::FORMAT_DATE => [
                     'class' => 'yii\jui\DatePicker',
@@ -55,6 +64,9 @@ return [
                     ]
                 ]
             ]
-        ]
-    ]
+        ],
+        'pdfjs' => [
+            'class' => '\yii2assets\pdfjs\Module',
+        ],
+    ],
 ];

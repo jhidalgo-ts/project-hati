@@ -14,7 +14,7 @@ dmstr\web\AdminLteAsset::register($this);
     <head>
         <meta charset="<?= Yii::$app->charset?>"/>
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="shortcut icon" type="image/ico" href="<?= Yii::getAlias('@web')?>/img/favicon.ico">
+        <link rel="shortcut icon" type="image/ico" href="<?= Yii::getAlias('@web') ?>/img/g-icon.ico">
         <?= Html::csrfMetaTags() ?>
         <title><?= Html::encode($this->title) ?></title>
         <?php $this->head()?>

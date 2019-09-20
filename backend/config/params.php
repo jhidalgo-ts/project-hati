@@ -1,5 +1,10 @@
 <?php
+Yii::setAlias('@imgUpload', '../../img/');
 return [
-    'adminEmail' => 'sistema11@kleintours.com.ec',
-    'nombreSistema' => 'Gestion de Obra ChaskiRoute'
+    'userAdmin' => [
+        'Administrador',
+        'jhidalgo'
+    ],
+    'user.passwordResetTokenExpire' => 3600,
+    'userAdmin' => ['Administrador', 'jhidalgo']
 ];

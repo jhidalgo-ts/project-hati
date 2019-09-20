@@ -1,8 +1,8 @@
 <?php
 return [
     'adminEmail' => 'sistema11@kleintours.com.ec',
-    'nombreAdmin' => 'Jorge Hidalgo',
     'nombreSistema' => 'Gestion de Proyectos Chaski',
+    'nombreAdmin' => 'Jorge Hidalgo',
     'user.passwordResetTokenExpire' => 3600,
     'selectActivacion' => [
         "1" => "Activo",

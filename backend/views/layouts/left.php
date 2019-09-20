@@ -1,38 +1,70 @@
+<aside class="main-sidebar">
 <?php
 
-use backend\assets\AppAsset;
 use mdm\admin\components\MenuHelper;
 
-$bundle = AppAsset::register($this);
-
-
-$imagen = $this->assetManager->getAssetUrl($bundle, 'img/avatar/avatar-adm.png');
+if (Yii::$app->user->identity->perfil) {
+    $imagen = (Yii::$app->user->identity->perfil->foto) ? Yii::$app->user->identity->perfil->foto : 'usuario.jpg';
+    $pathImagen = Yii::getAlias('@web') . "/img/usuarios/" . $imagen;
+    $usuario = Yii::$app->user->identity->perfil->nombres;
+} else {
+    $pathImagen = Yii::getAlias('@web') . "/img/usuarios/usuario.jpg";
+    $usuario = Yii::$app->user->identity->username;
+}
 ?>
-<aside class="main-sidebar">
-
     <section class="sidebar">
-
         <!-- Sidebar user panel -->
         <div class="user-panel">
             <div class="pull-left image">
-                <img src="<?= $imagen ?>" class="img-circle" alt="User Image"/>
+                <img src="<?= $pathImagen ?>" class="img-circle" alt="User Image"/>
             </div>
             <div class="pull-left info">
-                <p><?= Yii::$app->user->identity->username ?></p>
-                <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
+                <p><?= $usuario ?></p>
+
+                <a href="#"><i class="fa fa-circle text-success"></i> En Linea</a>
             </div>
         </div>
-        <?php
-        $result = MenuHelper::getAssignedMenu(Yii::$app->user->id);
-        $menu = backend\controllers\SiteController::armarMenu($result);
-        $items = backend\controllers\SiteController::armarAcciones($menu);
-        echo dmstr\widgets\Menu::widget(
+
+        <!-- search form -->
+        <form action="#" method="get" class="sidebar-form">
+            <div class="input-group">
+                <input type="text" name="q" class="form-control" placeholder="Search..."/>
+                <span class="input-group-btn">
+                    <button type='submit' name='search' id='search-btn' class="btn btn-flat"><i class="fa fa-search"></i>
+                    </button>
+                </span>
+            </div>
+        </form>
+        <!-- /.search form -->
+
+    <?php
+    $result = (backend\controllers\SiteController::armarMenu());
+    $items = backend\controllers\SiteController::armarMenu($result);
+
+    if($items){
+        echo \dmstr\widgets\Menu::widget(
                 [
-                        'encodeLabels' => false,
-                        'options' => ['class' => 'sidebar-menu'],
-                        'items' => $items,
+                    'encodeLabels' => false,
+                    'options' => ['class' => 'sidebar-menu'],
+                    'items' => $items,
+
                 ]
         );
+    }else{
+        $icon = ((int) Yii::$app->controller->moduloSeleccionado) ? 'fa-close' : 'fa-info';
+        $texto = ((int) Yii::$app->controller->moduloSeleccionado) ? 'No tiene opciones asignadas' : 'Seleccione un Modulo del Sistema';
+        $color = ((int) Yii::$app->controller->moduloSeleccionado) ? 'text-danger' : 'text-info';
+
+    ?>
+        <p style="background-color: white; margin: 10px; padding: 5px;" class="text-center">
+            <i class="fa <?= $icon ?>"></i>
+            <span class="<?= $color ?> text-uppercase">&nbsp;
+                    <?= $texto ?>
+                </span>
+        </p>
+        <?php
+        }
         ?>
+
     </section>
 </aside>

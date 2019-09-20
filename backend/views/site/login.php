@@ -19,6 +19,30 @@ $fieldOptions2 = [
     'inputTemplate' => "{input}<span class='glyphicon glyphicon-lock form-control-feedback'></span>"
 ];
 ?>
+<style>
+    .login-box, .register-box{
+        margin: 3% auto;
+    }
+    hr {border: 0; height: 0; border-top: 4px double black; text-align:center;}
+    hr:after {position: relative; top: -21px; content:"\25cf\25cf\25cf"; font-size: 28px;line-height: 34px; color: black;}
+</style>
+
+<div class="col-lg-12">
+    <?php if (Yii::$app->session->hasFlash('success')): ?>
+        <div class="alert alert-success alert-dismissable" role="alert">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            <?= Yii::$app->session->getFlash('success') ?>
+        </div>
+    <?php endif; ?>
+</div>
+<div class="col-lg-12">
+    <?php if (Yii::$app->session->hasFlash('error')): ?>
+        <div class="alert alert-danger alert-dismissable" role="alert">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            <?= Yii::$app->session->getFlash('error') ?>
+        </div>
+    <?php endif; ?>
+</div>
 
 <div class="login-box">
 
@@ -56,8 +80,15 @@ $fieldOptions2 = [
 
         <?php ActiveForm::end(); ?>
 
-        <a href="<?=  Yii::getAlias('@web')?>/site/forgot">Olvido su clave</a><br>
-        <a href="<?=  Yii::getAlias('@web')?>/site/signup">Crear Cuenta</a><br>
+        <hr>
+        <div class="row">
+            <div class="col-lg-6">
+                <a href="request-password-reset">Olvido su Clave</a>
+            </div>
+            <div class="col-lg-6 text-right">
+                <a href="signup">Registrarse</a>
+            </div>
+        </div>
     </div>
 
 </div>
