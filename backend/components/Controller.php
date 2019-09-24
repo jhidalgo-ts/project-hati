@@ -18,13 +18,15 @@ class Controller extends \yii\web\Controller
             Yii::$app->id = Yii::$app->request->cookies['modulo']->value;
         }
         $this->modulosSistema = $this->cargarModulos();
+        $this->modulosSistema = $this->cargarModulos();
         $this->moduloSeleccionado = Yii::$app->id;
+
     }
 
     public static function verificarModuloMenu($id){
-        $data = array();
         $model = \mdm\admin\models\Menu::findOne($id);
         $modulo = $model->name;
+        $data = array();
 
         foreach (self::cargarMenuModulos() as $key => $value) {
             if($value['label'] == $modulo){
@@ -75,7 +77,7 @@ class Controller extends \yii\web\Controller
                 $data[$key] = self::recorro($value);
             } else{
                 $data[$key] = $value;
-                $menu = \mdm\admin\models\Menu::find()->where("name = '" . trim($value) . "''")->one();
+                $menu = \mdm\admin\models\Menu::find()->where("name = '" . trim($value) . "'")->one();
 
                 if($menu['option']){
                     $data['option'] = ['class' => 'header'];
