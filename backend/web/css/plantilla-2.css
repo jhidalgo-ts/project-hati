@@ -2,8 +2,8 @@
     font-family: 'GothamBook';
     src: url('fonts/GothamBook.eot');
     src: local('☺'), url('fonts-gotham/GothamBook.woff') format('woff'),
-        url('fonts-gotham/GothamBook.ttf') format('truetype'),
-        url('fonts-gotham/GothamBook.svg') format('svg');
+    url('fonts-gotham/GothamBook.ttf') format('truetype'),
+    url('fonts-gotham/GothamBook.svg') format('svg');
     font-weight: normal;
     font-style: normal;
 }
@@ -13,8 +13,8 @@
     font-family: 'GothamMedium';
     src: url('fonts-medium/Gotham-Medium.eot');
     src: local('☺'), url('fonts-medium/Gotham-Medium.woff') format('woff'),
-        url('fonts-medium/Gotham-Medium.ttf') format('truetype'),
-        url('fonts-medium/Gotham-Medium.svg') format('svg');
+    url('fonts-medium/Gotham-Medium.ttf') format('truetype'),
+    url('fonts-medium/Gotham-Medium.svg') format('svg');
     font-weight: normal;
     font-style: normal;
 }

@@ -13,8 +13,17 @@ return [
     'language' => 'es',
     'bootstrap' => ['log'],
     'modules' => [
+        'gridview' => [
+            'class' => '\kartik\grid\Module'
+        ],
         'sap' => [
             'class' => 'backend\modules\sap\Module',
+        ],
+        'rrhh'=>[
+            'class' => 'backend\modules\rrhh\Module',
+        ],
+        'obra' => [
+            'class' => 'backend\modules\obra\Module',
         ],
         'markdown' => [
             'class' => 'kartik\markdown\Module',
@@ -70,7 +79,8 @@ return [
             'site/error',
             'site/logout',
             'debug/*',
-            'gii/*'
+            'gii/*',
+            'assets/*'
 
         ]
     ],

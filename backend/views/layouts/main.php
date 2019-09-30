@@ -24,7 +24,7 @@ $directoryAsset = Yii::$app->assetManager->getPublishedUrl('@vendor/almasaeed201
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <?= Html::csrfMetaTags() ?>
     <title><?= Html::encode($this->title) ?></title>
-    <link rel="shortcut icon" type="image/ico" href="<?= Yii::getAlias('@web') ?>/img/g-icon.ico">
+    <link rel="shortcut icon" type="image/ico" href="<?= Yii::getAlias('@web') ?>/img/ch-icon.ico">
     <?php $this->head() ?>
 </head>
 <body class="hold-transition skin-blue sidebar-mini">

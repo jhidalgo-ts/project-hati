@@ -38,7 +38,7 @@ return [
     ],
     'modules' =>[
         'gridview' => [
-            'class' => '\kartik\admin\Module'
+            'class' => '\kartik\grid\Module'
         ],
         'admin' => [
             'class' => 'mdm\admin\Module',

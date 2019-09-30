@@ -30,7 +30,7 @@ return [
                 ]
             ],
             'on afterOpen' => function ($event) {
-                $event->sender->createCommand("SET search_path TO core;")->execute();
+                $event->sender->createCommand("SET search_path TO sap;")->execute();
             },
         ],
         'mailer' => [

@@ -4,7 +4,6 @@ namespace backend\controllers;
 
 use Yii;
 use backend\components\Controller;
-use yii\base\InvalidParamException;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
 use common\models\LoginForm;
@@ -67,11 +66,30 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        return $this->render('index');
+        $mensaje = "";
+        if((int) Yii::$app->controller->moduloSeleccionado){
+            $model = \mdm\admin\models\Menu::findOne(Yii::$app->controller->moduloSeleccionado);
+            $vista = strtolower(str_replace(' ','',$model->name));
+            switch ($vista){
+                case 'sap':
+                    return $this->dashboardSap();
+                case 'rrhh':
+                    return $this->dashboardRrhh();
+                case 'obra':
+                    return $this->dashboardObra();
+                case 'configuracion':
+                    return $this->dashboardConfiguracion();
+                default:
+                    $mensaje = "El modulo [$vista] aun no cuenta con dashboard principal";
+                    break;
+            }
+        }
+        return $this->render('index', ['mensaje' => $mensaje]);
     }
 
     public function actionModulo($id){
         Yii::$app->id = $id;
+
         $moduloCookie = new \yii\web\Cookie([
             'name' => 'modulo',
             'value' => $id,
@@ -80,6 +98,23 @@ class SiteController extends Controller
         Yii::$app->response->cookies->add($moduloCookie);
         return $this->redirect("index");
     }
+
+    public function dashboardSap(){
+        return $this->render('/dashboard/sap');
+    }
+
+    public function dashboardRrhh(){
+        return $this->render('/dashboard/rrhh');
+    }
+
+    public function dashboardObra(){
+        return $this->render('/dashboard/obra');
+    }
+
+    public function dashboardConfiguracion(){
+        return $this->render('/dashboard/administracion');
+    }
+
 
     /**
      * Login action.

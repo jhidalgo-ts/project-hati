@@ -23,7 +23,6 @@
         "dmstr/yii2-adminlte-asset": "2.3.0",
         "almasaeed2010/adminlte": "~2.4",
         "johnitvn/yii2-ajaxcrud": "*",
-        "2amigos/yii2-ckeditor-widget": "^2.0",
         "bluezed/yii2-scroll-top": "*",
         "zelenin/yii2-i18n-module": "dev-master",
         "kartik-v/yii2-dialog": "*",
@@ -43,6 +42,7 @@
         "kartik-v/yii2-field-range": "dev-master",
         "kartik-v/yii2-mpdf": "*",
         "vova07/yii2-imperavi-widget": "*",
+        "kartik-v/yii2-grid": "@dev",
         "kartik-v/yii2-helpers": "dev-master",
 
         "2amigos/yii2-ckeditor-widget" : "2.0",
