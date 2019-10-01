@@ -40,7 +40,7 @@ class DetSalidasSearch extends DetSalidas
      *
      * @return ActiveDataProvider
      */
-    public function search($params)
+    public function search($params, $id)
     {
         $query = DetSalidas::find();
 
@@ -49,6 +49,7 @@ class DetSalidasSearch extends DetSalidas
         ]);
 
         $this->load($params);
+        $query->where("cab_id=$id");
 
         if (!$this->validate()) {
             // uncomment the following line if you do not want to return any records when validation fails

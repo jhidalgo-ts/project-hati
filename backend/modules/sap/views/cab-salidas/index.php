@@ -21,7 +21,7 @@ CrudAsset::register($this);
         <?=GridView::widget([
             'id'=>'crud-datatable',
             'dataProvider' => $dataProvider,
-            //'filterModel' => $searchModel,
+            'filterModel' => $searchModel,
             'pjax'=>true,
             'columns' => require(__DIR__ . '/_columns.php'),
             'toolbar'=> [

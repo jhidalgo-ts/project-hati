@@ -3,6 +3,9 @@
 namespace backend\modules\sap\controllers;
 
 
+use common\models\DetSalidas;
+use common\models\Perfil;
+use common\models\search\DetSalidasSearch;
 use Yii;
 use common\models\CabSalidas;
 use common\models\search\CabSalidasSearch;
@@ -369,5 +372,94 @@ class CabSalidasController extends Controller
             }
             return $rs;
         }
+    }
+
+    //funcion para la accion de fiscalizacion
+    public function actionFiscalizar($id){
+        $searchModel = new DetSalidasSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams, $id);
+        return $this->render('accion\detalle',[
+            'dataProvider' => $dataProvider,
+            'id' => $id,
+        ]);
+    }
+
+    //funcion para modificar la cantidad de fiscalizacion
+    public function actionCant($id){
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $response = Yii::$app->request->post();
+        $index = $response['editableIndex'];
+        $_canti = $response['DetSalidas'][$index]['cantidadfiscaliza'];
+        $model = DetSalidas::findOne(['id' => $id]);
+        $cantSalida = $model->cantidad;
+        if($_canti <= $cantSalida){
+            $model->cantidadfiscaliza = $_canti;
+            $model->diferencia = $cantSalida - $_canti;
+            $model->save();
+            return ['output' => 'Cantidad modificada'];
+        }else{
+            return ['output' => 'Cantidad no modificada'];
+        }
+    }
+
+    //funcion para modificar el comentario
+    public function actionObs($id){
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $response = Yii::$app->request->post();
+        $index = $response['editableIndex'];
+        $_obs = $response['DetSalidas'][$index]['comentario'];
+        $model = DetSalidas::findOne(['id' => $id]);
+        $model->comentario = $_obs;
+        $model->save();
+        return ['output' => 'Observacion modificada'];
+    }
+
+    //funcion de fiscalizacion
+    public function actionFiscalizado($id){
+        $nombre = Perfil::find()->select(['nombres'])->asArray()->where(['user_id' => Yii::$app->user->identity['id']])->one();
+        $model = CabSalidas::findOne(['id' => $id]);
+        $model->estado = 1;
+        $_detalle = DetSalidas::find()
+            ->where(['cab_id' => $model->id])
+            ->all();
+        foreach($_detalle as $_key => $_valor){
+            if($_valor['diferencia'] > 0){
+                $_array[$_key]['item'] = $_valor['coditem'];
+                $_array[$_key]['descripcion'] = $_valor['descripcion'];
+                $_array[$_key]['cantidad'] = $_valor['cantidad'];
+                $_array[$_key]['cantFis'] = $_valor['cantidadfiscaliza'];
+                $_array[$_key]['diferencia'] = $_valor['diferencia'];
+                $_array[$_key]['comentario'] = $_valor['comentario'];
+            }
+        }
+        $array[] = [
+            'cabecera' => [
+                'id' => 'Fiscalizacion Salida No. ' .$model->id,
+                'solicita' => $model->solicita,
+                'retira' => $model->retira,
+                'fiscalizador' => $nombre['nombres'],
+            ],
+            'actividad' => $_array,
+            'mail_envio' => ["sistema11@kleintours.com.ec"],
+            'mail_copia' => ["sistema12@kleintours.com.ec"]
+
+        ];
+        if($model->save()){
+            $this->envioMail('mail/_salidaMercaderia', $array);
+            return $this->redirect(['index']);
+        }
+    }
+
+    //funcion para envio de mail
+    public function envioMail($vista, $array) {
+        $html = $this->render($vista, [
+            'array' => $array
+        ]);
+        $mensaje = \Yii::$app->mailer->compose('plantilla/mail_chaski', ['content' => $html, 'imageFileName' => '/path/to/image.jpg', 'title' => 'mail'])
+            ->setFrom([\Yii::$app->params['adminEmail'] => "Admin Sistema"])
+            ->setTo($array[0]['mail_envio'])
+            ->setBcc($array[0]['mail_copia'])
+            ->setSubject($array[0]['cabecera']['id'])
+            ->send();
     }
 }
