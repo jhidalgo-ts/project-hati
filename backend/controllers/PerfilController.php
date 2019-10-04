@@ -255,4 +255,6 @@ class PerfilController extends Controller {
 //        return ['forceClose' => true, 'forceReload' => '#crud-datatable-pjax'];
     }
 
+
+
 }

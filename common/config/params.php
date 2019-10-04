@@ -23,5 +23,9 @@ return [
         "VA" => "Victor Aguirre",
         "LFS" => "Luis Fernando Salazar",
         "HA" => "Hugo Andino"
-    ]
+    ],
+    "formaPago" =>[
+        "0" => "Cheque",
+        "1" => "Deposito Cuenta",
+    ],
 ];

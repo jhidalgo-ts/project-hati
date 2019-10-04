@@ -462,4 +462,7 @@ class CabSalidasController extends Controller
             ->setSubject($array[0]['cabecera']['id'])
             ->send();
     }
+
+    //funcion para reportes
+
 }
